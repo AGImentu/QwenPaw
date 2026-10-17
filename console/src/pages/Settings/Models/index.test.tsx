@@ -119,6 +119,7 @@ vi.mock("./components/ProviderIconComponent", () => ({
 }));
 
 import ModelsPage from "./index";
+import styles from "./index.module.less";
 
 function makeProvider(overrides: Partial<ProviderInfo> = {}): ProviderInfo {
   return {
@@ -151,6 +152,28 @@ describe("ModelsPage", () => {
     setProviders([]);
   });
 
+  it("keeps the unified header for the home entry", () => {
+    renderWithProviders(<ModelsPage />, { initialEntries: ["/models"] });
+
+    const header = screen
+      .getByText("models.llmTitle")
+      .closest("[data-page-header]");
+    expect(header).not.toHaveClass(styles.pageHeader);
+    expect(screen.queryByText("nav.settings")).not.toBeInTheDocument();
+  });
+
+  it("keeps only the page title and the settings header style", () => {
+    renderWithProviders(<ModelsPage />, {
+      initialEntries: ["/settings/models"],
+    });
+
+    const header = screen
+      .getByText("models.llmTitle")
+      .closest("[data-page-header]");
+    expect(header).toHaveClass(styles.pageHeader);
+    expect(screen.queryByText("nav.settings")).not.toBeInTheDocument();
+  });
+
   it("shows the loading state while fetching", () => {
     providersMock.loading = true;
     renderWithProviders(<ModelsPage />, { initialEntries: ["/models"] });
@@ -177,13 +200,13 @@ describe("ModelsPage", () => {
     expect(screen.getByTestId("icon:anthropic")).toBeInTheDocument();
   });
 
-  it("shows the empty configured state with a go-configure button", () => {
+  it("shows guidance without a redundant go-configure button", () => {
     setProviders([
       makeProvider({ id: "only-avail", name: "Only Avail", api_key: "" }),
     ]);
     renderWithProviders(<ModelsPage />, { initialEntries: ["/models"] });
     expect(screen.getByText("models.noConfigured")).toBeInTheDocument();
-    expect(screen.getByText("models.goConfigureBtn")).toBeInTheDocument();
+    expect(screen.queryByText("models.goConfigureBtn")).not.toBeInTheDocument();
   });
 
   it("switches between cloud and local tabs", async () => {
@@ -322,16 +345,24 @@ describe("ModelsPage", () => {
     );
   });
 
-  it("renders the default LLM pill with the active model", () => {
+  it("renders the chat and decision model defaults", () => {
     setProviders(
       [makeProvider({ id: "openai", name: "OpenAI", api_key: "sk-x" })],
       {
         active_llm: { provider_id: "openai", model: "gpt-x" },
+        default_models: {
+          chat: { provider_id: "openai", model: "gpt-x" },
+          decision: null,
+        },
       },
     );
     renderWithProviders(<ModelsPage />, { initialEntries: ["/models"] });
-    expect(screen.getByText(/models\.defaultLlm/)).toBeInTheDocument();
-    expect(screen.getByText(/gpt-x/)).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "models.defaultChatModel" }),
+    ).toHaveTextContent("OpenAI / gpt-x");
+    expect(
+      screen.getByRole("button", { name: "models.defaultDecisionModel" }),
+    ).toHaveTextContent("models.notSet");
   });
 
   it("groups configured cloud providers by provider_group", () => {
