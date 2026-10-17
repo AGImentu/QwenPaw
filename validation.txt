@@ -1,36 +1,31 @@
-Official-base frontend validation (Windows, Node.js v24.14.1)
+Complete PR head: ae88d83f
+Official base: 697aeb669f42f223d060772eb7a313eec78ebd20
 
-npm ci
-Exit code: 0; official lockfile unchanged.
+npm run format: exit 0, only intended source/test files differ.
+npm run format:check: All matched files use Prettier code style! (exit 0)
 
-npm run format
-Exit code: 0; only the two intended source files differ from the official base.
-
-npm run test:coverage
+npm run test:coverage (exit 0)
 Test Files  491 passed (491)
-Tests       5140 passed (5140)
-Statements  71.63% (25770/35974)
-Branches    63.21% (17068/26999)
-Functions   66.31% (6138/9256)
-Lines       73.15% (24043/32866)
-Exit code: 0; repository coverage thresholds passed.
+Tests       5145 passed (5145)
+Statements  71.65% (25799/36006)
+Branches    63.28% (17103/27027)
+Functions   66.32% (6141/9259)
+Lines       73.16% (24069/32895)
+Repository coverage thresholds passed.
 
-npm run build
-Exit code: 0; TypeScript, Vite, Monaco CSS, compression, initial bundle gates passed.
+npm run build: exit 0.
+TypeScript, Vite, Monaco CSS, compression, initial-bundle checks passed.
 Initial bundle: 9.85 MiB raw, 2.54 MiB Brotli across 11 assets.
 
-node run-proof.cjs
-Browser: Chrome/155.0.8059.80
-passed: true; see result.json and before/after screenshots.
+Fill browser proof: Chrome 155, actual ThinkingControl, passed.
+Slow-save proof: Electron 22 / Chromium 108, actual official SessionThinking,
+650 ms preference writes, 322 timed renderer samples, passed.
+No label rollback, dimming, disabled strength input, or layout shift.
+Serial request order, final saved choice, advanced decision setting all verified.
+See saving/result.json for runtime exceptions (none) and the separate recorded
+React development diagnostic. Fixtures do not contact any real backend.
 
-This is a console presentation fix. No Python/backend code or channel contract changed.
-
-npm run format:check
-All matched files use Prettier code style!
-Exit code: 0.
-
-pre-commit run --all-files (Ubuntu 24.04)
-Exit code: 0; all applicable hooks passed, no auto-fixes.
+pre-commit run --all-files: exit 0, no auto-fixes.
 check python ast.........................................................Passed
 sort simple yaml files...............................(no files to check)Skipped
 check yaml...............................................................Passed

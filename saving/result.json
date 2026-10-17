@@ -1,0 +1,28 @@
+{
+  "passed": true,
+  "officialSource": true,
+  "advancedDecisionPreserved": true,
+  "runtimeExceptions": [],
+  "developmentDiagnostics": [
+    "Warning: forwardRef render functions accept exactly two parameters: props and ref. %s Did you forget to use the ref parameter?"
+  ],
+  "checkedFrames": 322,
+  "slowSaveMs": 650,
+  "mouseClicksAndDrag": true,
+  "noLabelRollback": true,
+  "noWholePanelDimming": true,
+  "noLayoutMovement": true,
+  "orderedWrites": [
+    "high",
+    "medium",
+    "off",
+    "low",
+    "high",
+    "off"
+  ],
+  "maxActiveWrites": 1,
+  "finalLevel": "off",
+  "chromium": "108.0.5359.215",
+  "noModelSwitchRequests": true,
+  "productionSettingsUnchanged": true
+}

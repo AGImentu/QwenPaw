@@ -1,10 +1,12 @@
 # Thinking slider visual regression evidence
 
 Base: agentscope-ai/QwenPaw `697aeb669f42f223d060772eb7a313eec78ebd20`.
-Fix: `701554d7` (`fix(console): fill thinking slider up to selected strength`).
+Color correction: `701554d7`.
+Complete fill-and-save-feedback correction: `ae88d83f`.
 
-This evidence branch is separate from the PR code branch. The PR changes only
-ThinkingControl.tsx and thinking.module.less; these screenshots and the local
+This evidence branch is separate from the PR code branch. The complete PR changes four existing frontend files:
+ThinkingControl.tsx, thinking.module.less, SessionThinking.tsx and its regression
+test file; these screenshots and the local
 fixture are not production files or additional application dependencies.
 
 ## What was checked
@@ -39,3 +41,11 @@ for the before screenshot; `proof.tsx` imports the fixed component directly.
 
 The fixture also supports `?before=1`, `?dark=1`, and `?prefix=ant` for manual
 inspection at `http://127.0.0.1:5278/.slider-proof/index.html`.
+
+## Slow-save and advanced settings proof
+
+See [saving/README.md](saving/README.md) for the complete control flow proof with
+650 ms simulated network latency and the actual official SessionThinking.
+The color images were captured at the initial color-fix commit; the complete
+fix retains that same slider styling. Full validation was repeated at the
+complete PR head; see validation.txt and pre-commit-summary.txt.
