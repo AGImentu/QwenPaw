@@ -1,0 +1,175 @@
+{
+  "passed": true,
+  "base": "697aeb669f42f223d060772eb7a313eec78ebd20",
+  "checks": [
+    {
+      "prefix": "qwenpaw",
+      "low": {
+        "ratio": 0.3333182803468208,
+        "rail": "rgba(0, 0, 0, 0.09)",
+        "railImage": "none",
+        "track": "rgb(255, 127, 22)",
+        "trackOpacity": "1",
+        "thumbOpacity": "1",
+        "height": 24,
+        "value": 1
+      },
+      "medium": {
+        "ratio": 0.6666365606936416,
+        "rail": "rgba(0, 0, 0, 0.09)",
+        "railImage": "none",
+        "track": "rgb(255, 127, 22)",
+        "trackOpacity": "1",
+        "thumbOpacity": "1",
+        "height": 24,
+        "value": 2
+      },
+      "high": {
+        "ratio": 1,
+        "rail": "rgba(0, 0, 0, 0.09)",
+        "railImage": "none",
+        "track": "rgb(255, 127, 22)",
+        "trackOpacity": "1",
+        "thumbOpacity": "1",
+        "height": 24,
+        "value": 3
+      },
+      "off": {
+        "ratio": 0,
+        "rail": "rgba(0, 0, 0, 0.09)",
+        "railImage": "none",
+        "track": "rgb(255, 127, 22)",
+        "trackOpacity": "1",
+        "thumbOpacity": "1",
+        "height": 24,
+        "value": 0
+      },
+      "budget": {
+        "ratio": 0.4047597543352601,
+        "rail": "rgba(0, 0, 0, 0.09)",
+        "railImage": "none",
+        "track": "rgb(255, 127, 22)",
+        "trackOpacity": "1",
+        "thumbOpacity": "1",
+        "height": 24,
+        "value": 4000
+      },
+      "quiet": {
+        "ratio": 0.6666365606936416,
+        "rail": "rgba(0, 0, 0, 0.09)",
+        "railImage": "none",
+        "track": "rgb(255, 127, 22)",
+        "trackOpacity": "1",
+        "thumbOpacity": "1",
+        "height": 10,
+        "value": 2
+      },
+      "unresolved": {
+        "ratio": 0,
+        "rail": "rgba(0, 0, 0, 0.09)",
+        "railImage": "none",
+        "track": "rgb(255, 127, 22)",
+        "trackOpacity": "0",
+        "thumbOpacity": "0",
+        "height": 24,
+        "value": 0
+      },
+      "hoverColorsStable": true
+    },
+    {
+      "prefix": "ant",
+      "low": {
+        "ratio": 0.3333182803468208,
+        "rail": "rgba(0, 0, 0, 0.09)",
+        "railImage": "none",
+        "track": "rgb(255, 127, 22)",
+        "trackOpacity": "1",
+        "thumbOpacity": "1",
+        "height": 24,
+        "value": 1
+      },
+      "medium": {
+        "ratio": 0.6666365606936416,
+        "rail": "rgba(0, 0, 0, 0.09)",
+        "railImage": "none",
+        "track": "rgb(255, 127, 22)",
+        "trackOpacity": "1",
+        "thumbOpacity": "1",
+        "height": 24,
+        "value": 2
+      },
+      "high": {
+        "ratio": 1,
+        "rail": "rgba(0, 0, 0, 0.09)",
+        "railImage": "none",
+        "track": "rgb(255, 127, 22)",
+        "trackOpacity": "1",
+        "thumbOpacity": "1",
+        "height": 24,
+        "value": 3
+      },
+      "off": {
+        "ratio": 0,
+        "rail": "rgba(0, 0, 0, 0.09)",
+        "railImage": "none",
+        "track": "rgb(255, 127, 22)",
+        "trackOpacity": "1",
+        "thumbOpacity": "1",
+        "height": 24,
+        "value": 0
+      },
+      "budget": {
+        "ratio": 0.4047597543352601,
+        "rail": "rgba(0, 0, 0, 0.09)",
+        "railImage": "none",
+        "track": "rgb(255, 127, 22)",
+        "trackOpacity": "1",
+        "thumbOpacity": "1",
+        "height": 24,
+        "value": 4000
+      },
+      "quiet": {
+        "ratio": 0.6666365606936416,
+        "rail": "rgba(0, 0, 0, 0.09)",
+        "railImage": "none",
+        "track": "rgb(255, 127, 22)",
+        "trackOpacity": "1",
+        "thumbOpacity": "1",
+        "height": 10,
+        "value": 2
+      },
+      "unresolved": {
+        "ratio": 0,
+        "rail": "rgba(0, 0, 0, 0.09)",
+        "railImage": "none",
+        "track": "rgb(255, 127, 22)",
+        "trackOpacity": "0",
+        "thumbOpacity": "0",
+        "height": 24,
+        "value": 0
+      },
+      "hoverColorsStable": true
+    }
+  ],
+  "browser": "Chrome/155.0.8059.80",
+  "before": {
+    "ratio": 0.3333182803468208,
+    "rail": "rgba(0, 0, 0, 0)",
+    "railImage": "linear-gradient(90deg, color(srgb 1 0.658667 0.378667), rgb(255, 127, 22) 50%, color(srgb 0.78 0.388471 0.0672941))",
+    "track": "rgba(0, 0, 0, 0)",
+    "trackOpacity": "1",
+    "thumbOpacity": "1",
+    "height": 24,
+    "value": 1
+  },
+  "dark": {
+    "ratio": 0.3333182803468208,
+    "rail": "rgba(255, 255, 255, 0.16)",
+    "railImage": "none",
+    "track": "rgb(255, 157, 77)",
+    "trackOpacity": "1",
+    "thumbOpacity": "1",
+    "height": 24,
+    "value": 1
+  }
+}
