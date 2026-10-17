@@ -4,7 +4,10 @@
 
 from __future__ import annotations
 
+import asyncio
+from copy import deepcopy
 from types import SimpleNamespace
+from unittest.mock import AsyncMock
 
 from agentscope.message import Msg
 import pytest
@@ -14,6 +17,9 @@ from qwenpaw.constant import (
     RUNTIME_CONTEXT_MESSAGE_TAG,
 )
 from qwenpaw.runtime.runtime import Runtime
+from qwenpaw.runtime.hooks import HookResult
+from qwenpaw.runtime.phases import Phase
+from qwenpaw.hooks.session.session_hook import SessionSaveHook
 
 pytestmark = [pytest.mark.unit, pytest.mark.p1]
 
@@ -112,3 +118,95 @@ async def test_cancel_and_error_save_path_excludes_runtime_context():
     assert [message["content"][0]["text"] for message in messages] == [
         "real question",
     ]
+
+
+@pytest.mark.parametrize("outcome", ["normal", "cancel", "error", "close"])
+async def test_runtime_lifecycle_does_not_save_injected_context(
+    monkeypatch,
+    outcome,
+):
+    """Exercise normal saves and every interrupted-stream persistence path."""
+    saved = []
+    observed = []
+    real_message = _message("user", "user", "real question")
+    ctx = _ctx(real_message)
+    ctx.request = SimpleNamespace(user_id="user-1", channel="console")
+    ctx.session_id = "session-1"
+    ctx.mode_state = {}
+    ctx.agent.state_dict = lambda: {
+        "state": {
+            "context": [
+                message.model_dump(mode="json")
+                for message in ctx.agent.state.context
+            ],
+        },
+    }
+
+    async def save_session_state(**kwargs):
+        saved.append(deepcopy(kwargs["agent"].state_dict()))
+
+    async def run_hook(phase, hook_ctx):
+        if phase == Phase.POST_RESPONSE:
+            return await SessionSaveHook().run(hook_ctx)
+        return HookResult()
+
+    workspace = SimpleNamespace(
+        session=SimpleNamespace(save_session_state=save_session_state),
+        plugins=SimpleNamespace(
+            hook_registry=SimpleNamespace(run=run_hook),
+            slash_command_registry=SimpleNamespace(
+                dispatch=AsyncMock(return_value=None),
+            ),
+            modes=[],
+        ),
+    )
+    ctx.workspace = workspace
+    runtime = Runtime(workspace=workspace, app_services=None)
+    monkeypatch.setattr(runtime, "_build_context", lambda _request: ctx)
+    monkeypatch.setattr(
+        "qwenpaw.runtime.runtime.AgentBuilder",
+        lambda **_kwargs: SimpleNamespace(
+            build=AsyncMock(return_value=ctx.agent),
+        ),
+    )
+    monkeypatch.setattr(
+        "qwenpaw.runtime.runtime.record_agent_activity",
+        AsyncMock(),
+    )
+
+    stream_event = object()
+
+    async def execute(input_msgs):
+        observed.extend(message.get_text_content() for message in input_msgs)
+        ctx.agent.state.context.extend(deepcopy(input_msgs))
+        yield stream_event
+        if outcome == "cancel":
+            raise asyncio.CancelledError()
+        if outcome == "error":
+            raise RuntimeError("interrupted model stream")
+
+    monkeypatch.setattr(
+        "qwenpaw.runtime.runtime.AgentExecutor",
+        lambda *_args: SimpleNamespace(run=execute),
+    )
+
+    async def consume():
+        stream = runtime.run({"session_id": ctx.session_id})
+        async for event in stream:
+            if outcome == "close" and event is stream_event:
+                await stream.aclose()
+                break
+
+    if outcome in {"cancel", "error"}:
+        error = asyncio.CancelledError if outcome == "cancel" else RuntimeError
+        with pytest.raises(error):
+            await consume()
+    else:
+        await consume()
+
+    assert observed == ["dynamic page context", "real question"]
+    assert len(saved) == 1
+    assert [
+        message["content"][0]["text"]
+        for message in saved[0]["state"]["context"]
+    ] == ["real question"]
