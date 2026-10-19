@@ -1,0 +1,41 @@
+{
+  "measurements": [
+    {
+      "target": "Scheduled task conversations",
+      "headerTop": 170.421875,
+      "headerBottom": 202.421875,
+      "sessionTop": 198.421875,
+      "gap": -4,
+      "rowHeight": 36,
+      "requiredHeight": 42,
+      "marginTop": "8px",
+      "headerOverflow": 4
+    },
+    {
+      "target": "Conversations with subagents",
+      "headerTop": 206.421875,
+      "headerBottom": 238.421875,
+      "sessionTop": 234.421875,
+      "gap": -4,
+      "rowHeight": 36,
+      "requiredHeight": 42,
+      "marginTop": "8px",
+      "headerOverflow": 4
+    }
+  ],
+  "writes": [
+    {
+      "path": "/api/chats/7b66c61c-c17c-4eaa-a03e-ef8efc860523",
+      "body": {
+        "group_id": "cron"
+      }
+    },
+    {
+      "path": "/api/chats/7b66c61c-c17c-4eaa-a03e-ef8efc860523",
+      "body": {
+        "group_id": "subagents"
+      }
+    }
+  ],
+  "errors": []
+}
