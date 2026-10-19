@@ -2,6 +2,7 @@
 
 Official baseline: `7cb6234f25798ee8fe1554206942ad87b65fe73d` (main, 2026-10-19).
 Fix branch: `AGImentu:codex/fix-source-group-row-height`.
+Fix commit: `57b674770`.
 
 The fixture imports the real `SidebarSessionList`, group headers, conversation items,
 virtual list and drag-and-drop components from the source checkout. Only the HTTP
@@ -55,6 +56,9 @@ Raw measurements are in `before-measurements.json` and `after-measurements.json`
 - `npm run format`: passes.
 - `npm run build`: passes, including TypeScript, Vite, Monaco CSS, asset
   precompression and initial-bundle checks.
+- `pre-commit run --all-files`: all applicable hooks pass on Ubuntu 24.04 /
+  Python 3.12 with the same baseline and exact changed-file contents; includes
+  mypy, Black, Flake8, Pylint, Prettier and actionlint (one no-files skip).
 
 These fixture files and screenshots live on a separate evidence branch and are
 not included in the production PR diff.
