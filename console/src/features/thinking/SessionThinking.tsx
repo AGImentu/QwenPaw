@@ -24,16 +24,23 @@ import {
 import ModelSelector from "../../pages/Chat/ModelSelector";
 import { ProviderIcon } from "../../pages/Settings/Models/components/ProviderIconComponent";
 import { useTurnUsageStore } from "../../pages/Chat/turnUsageStore";
+import {
+  enqueueSessionThinkingWrite,
+  sessionThinkingScope,
+  waitForSessionThinkingWrites,
+} from "./sessionThinkingWrites";
 import styles from "./thinking.module.less";
 
 export function SessionThinking({
   agentId,
   sessionId,
   chatId,
+  onDecisionEnabledChange,
 }: {
   agentId: string;
   sessionId: string;
   chatId?: string | null;
+  onDecisionEnabledChange?: (enabled: boolean | undefined) => void;
 }) {
   const { t } = useTranslation();
   const { message } = useAppMessage();
@@ -43,16 +50,16 @@ export function SessionThinking({
   const [preview, setPreview] = useState<ThinkingPreference>();
   const [busy, setBusy] = useState(false);
   const [saving, setSaving] = useState(false);
-  const saveQueue = useRef(Promise.resolve());
   const generation = useRef(0);
   const previewRevision = useRef(0);
   const revision = useRef(0);
-  const identity = `${agentId}:${sessionId}:${chatId ?? ""}`;
+  const identity = JSON.stringify([agentId, sessionId, chatId ?? null]);
+  const scope = sessionThinkingScope(agentId, sessionId, chatId);
   const identityRef = useRef(identity);
   identityRef.current = identity;
   useEffect(() => {
     generation.current += 1;
-    saveQueue.current = Promise.resolve();
+    onDecisionEnabledChange?.(undefined);
     setOpen(false);
     setChoosing(false);
     setView(undefined);
@@ -70,12 +77,12 @@ export function SessionThinking({
       revision.current += 1;
       window.removeEventListener("session-model-changed", refresh);
     };
-  }, [identity]);
+  }, [identity, onDecisionEnabledChange]);
   async function load() {
     const version = ++revision.current;
     setBusy(true);
     try {
-      await saveQueue.current;
+      await waitForSessionThinkingWrites(scope);
       if (identityRef.current !== identity || revision.current !== version)
         return;
       const next = await sessionThinkingApi.get(agentId, chatId, sessionId);
@@ -86,6 +93,7 @@ export function SessionThinking({
           readPendingThinking(agentId, sessionId, next.model_key) ?? next.value;
       setPreview(undefined);
       setView(next);
+      onDecisionEnabledChange?.(next.decision?.enabled);
       useTurnUsageStore
         .getState()
         .setActiveMaxInputLength(next.effective_max_input_length ?? null);
@@ -116,12 +124,9 @@ export function SessionThinking({
     }
     setSaving(true);
     if ("enabled" in value) setBusy(true);
-    // Keep server writes ordered while the control displays the latest preview.
-    saveQueue.current = saveQueue.current.then(async () => {
-      if (generation.current !== owner || identityRef.current !== identity)
-        return;
-      try {
-        const next =
+    try {
+      const next = await enqueueSessionThinkingWrite(scope, async () => {
+        const result =
           "enabled" in value
             ? {
                 ...view,
@@ -137,31 +142,32 @@ export function SessionThinking({
                 value,
                 view.model_key,
               );
-        if (generation.current === owner && identityRef.current === identity) {
-          setView((current) =>
-            "enabled" in value && current
-              ? { ...current, decision: next.decision }
-              : next,
-          );
-          if ("level" in value)
-            setPendingThinking(agentId, sessionId, null, view.model_key);
-        }
-      } catch (error) {
-        if (generation.current === owner && identityRef.current === identity)
-          message.error(String(error));
-      } finally {
-        if (
-          generation.current === owner &&
-          identityRef.current === identity &&
-          revision.current === version
-        ) {
-          setSaving(false);
-          if ("enabled" in value) setBusy(false);
-          if (previewRevision.current === edit) setPreview(undefined);
-        }
+        if ("level" in value)
+          setPendingThinking(agentId, sessionId, null, view.model_key);
+        return result;
+      });
+      if (generation.current === owner && identityRef.current === identity) {
+        setView((current) =>
+          "enabled" in value && current
+            ? { ...current, decision: next.decision }
+            : next,
+        );
+        onDecisionEnabledChange?.(next.decision?.enabled);
       }
-    });
-    await saveQueue.current;
+    } catch (error) {
+      if (generation.current === owner && identityRef.current === identity)
+        message.error(String(error));
+    } finally {
+      if (
+        generation.current === owner &&
+        identityRef.current === identity &&
+        revision.current === version
+      ) {
+        setSaving(false);
+        if ("enabled" in value) setBusy(false);
+        if (previewRevision.current === edit) setPreview(undefined);
+      }
+    }
   }
   const canReset =
     !!view &&

@@ -125,7 +125,9 @@ it("restores the last confirmed effort if the latest queued save fails", async (
 it("discards queued writes and responses when switching chats", async () => {
   vi.mocked(sessionThinkingApi.get).mockResolvedValue(effortView);
   const first = deferred<ThinkingView>();
-  vi.mocked(sessionThinkingApi.set).mockReturnValueOnce(first.promise);
+  vi.mocked(sessionThinkingApi.set)
+    .mockReturnValueOnce(first.promise)
+    .mockResolvedValueOnce({ ...effortView, value: { level: "medium" } });
   const { rerender } = renderWithProviders(
     <SessionThinking agentId="a" sessionId="s" chatId="c" />,
   );
@@ -147,7 +149,7 @@ it("discards queued writes and responses when switching chats", async () => {
   await act(async () =>
     first.resolve({ ...effortView, value: { level: "high" } }),
   );
-  expect(sessionThinkingApi.set).toHaveBeenCalledTimes(1);
+  await waitFor(() => expect(sessionThinkingApi.set).toHaveBeenCalledTimes(2));
   expect(screen.getByRole("slider")).toHaveAttribute("aria-valuenow", "1");
 });
 
