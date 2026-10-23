@@ -21,6 +21,7 @@ import {
   resetSessionModel,
   saveDecisionSettings,
 } from "../session-settings/sessionModel";
+import { isSessionModelChangedFor } from "../session-settings/sessionModelEvents";
 import ModelSelector from "../../pages/Chat/ModelSelector";
 import { ProviderIcon } from "../../pages/Settings/Models/components/ProviderIconComponent";
 import { useTurnUsageStore } from "../../pages/Chat/turnUsageStore";
@@ -68,8 +69,9 @@ export function SessionThinking({
     setSaving(false);
     revision.current += 1;
     void load();
-    const refresh = () => {
-      void load();
+    const refresh = (event: Event) => {
+      if (isSessionModelChangedFor(event, { agentId, sessionId, chatId }))
+        void load();
     };
     window.addEventListener("session-model-changed", refresh);
     return () => {
@@ -82,9 +84,12 @@ export function SessionThinking({
     const version = ++revision.current;
     setBusy(true);
     try {
-      await waitForSessionThinkingWrites(scope);
-      if (identityRef.current !== identity || revision.current !== version)
-        return;
+      const pendingWrites = waitForSessionThinkingWrites(scope);
+      if (pendingWrites) {
+        await pendingWrites;
+        if (identityRef.current !== identity || revision.current !== version)
+          return;
+      }
       const next = await sessionThinkingApi.get(agentId, chatId, sessionId);
       if (identityRef.current !== identity || revision.current !== version)
         return;
@@ -98,7 +103,8 @@ export function SessionThinking({
         .getState()
         .setActiveMaxInputLength(next.effective_max_input_length ?? null);
     } catch (error) {
-      if (identityRef.current === identity) message.error(String(error));
+      if (identityRef.current === identity && revision.current === version)
+        message.error(String(error));
     } finally {
       if (identityRef.current === identity && revision.current === version) {
         setBusy(false);

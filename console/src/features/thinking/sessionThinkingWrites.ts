@@ -29,9 +29,14 @@ export function enqueueSessionThinkingWrite<T>(
   return result;
 }
 
-export async function waitForSessionThinkingWrites(
+export function waitForSessionThinkingWrites(
   scope: string,
-): Promise<void> {
-  let pending;
-  while ((pending = pendingWrites.get(scope))) await pending;
+): Promise<void> | undefined {
+  let pending = pendingWrites.get(scope);
+  if (!pending) return undefined;
+  return (async () => {
+    do {
+      await pending;
+    } while ((pending = pendingWrites.get(scope)));
+  })();
 }
